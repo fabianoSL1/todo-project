@@ -1,23 +1,78 @@
+import { useReducer } from 'react';
 import Bar from './Bar';
+import NewTodo from './components/NewTodo';
+import TodoItem from './components/TodoItem';
+
+const initial = [
+  {
+    text: 'todo 1',
+    complete: true,
+  },
+  {
+    text: 'todo 2',
+    complete: false,
+  },
+  {
+    text: 'todo 3',
+    complete: false,
+  },
+];
 
 function App() {
+  const [todoList, dispatch] = useReducer(reducer, initial);
+
+  function handleAdd(text) {
+    dispatch({
+      type: 'added',
+      text: text,
+    });
+  }
+
+  function handleDelete(text) {
+    dispatch({
+      type: 'deleted',
+      text: text,
+    });
+  }
 
   return (
-    <div className='font-montserrat max-w-md mx-auto px-4'>
-
-      <h1 className='text-3xl text-center text-[#333333] mt-8 font-raleway font-bold'>
+    <div className="font-montserrat max-w-md mx-auto px-4">
+      <h1 className="text-3xl text-center text-[#333333] mt-8 font-raleway font-bold">
         #todo
       </h1>
 
       <Bar />
 
-      <div className='mt-3 flex gap-3 items-stretch'>
-        <input type='text' placeholder='add details' className='border border-gray-300 px-2 py-2 rounded-xl flex-grow-1 w-full' />
-        <button className='capitalize bg-blue-500 text-white text-sm font-semibold px-8 rounded-xl'>add</button>
-      </div>
+      <NewTodo handleAdd={handleAdd} />
 
+      {todoList.map(({ text, complete }, key) => (
+          <TodoItem
+            text={text}
+            initial={complete}
+            handleDelete={handleDelete}
+            key={key}
+          />
+      ))}
     </div>
   );
 }
 
+function reducer(tasks, action) {
+  switch (action.type) {
+    case 'added': {
+      return [
+        ...tasks,
+        {
+          text: action.text,
+          complete: false,
+        },
+      ];
+    }
+    case 'deleted': {
+      return tasks.filter((task) => task.text !== action.text);
+    }
+    default: {
+    }
+  }
+}
 export default App;
